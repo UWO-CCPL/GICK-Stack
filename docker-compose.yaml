@@ -54,6 +54,18 @@ services:
         volumes:
             - grafana:/var/lib/grafana
 
+    mqtt:
+        image: eclipse-mosquitto:1.6.8
+        ports: 
+            - 1883:1883
+            - 9001:9001
+        networks:
+            - influx
+        hostname: mqtt
+        volumes:
+            - mqtt:/mosquitto
+
+
 networks:
     influx:
 
@@ -62,4 +74,5 @@ volumes:
     chronograf:
     kapacitor:
     grafana:
+    mqtt:
     
