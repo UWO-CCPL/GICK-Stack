@@ -1,0 +1,65 @@
+version: "2"
+
+services:
+    influxdb:
+        image: influxdb:1.7.9
+        ports:
+            - 8086:8086
+        volumes:
+            - influxdb:/var/lib/influxdb
+        networks:
+            - influx
+        hostname: influxdb
+
+    chronograf:
+        image: chronograf:1.7.14
+        environment:
+            INFLUXDB_URL: http://influxdb:8086
+            KAPACITOR_URL: http://kapacitor:9092
+        ports: 
+            - 8888:8888
+        links:
+            - influxdb
+            - kapacitor
+        networks:
+            - influx
+        hostname: chronograf
+        volumes:
+            - chronograf:/var/lib/chronograf
+    
+    kapacitor:
+        image: kapacitor:1.5.3
+        environment:
+            KAPACITOR_HOSTNAME: kapacitor
+            KAPACITOR_INFLUXDB_0_URLS_0: http://influxdb:8086
+        links:
+            - influxdb
+        ports:
+            - 9092:9092
+        networks:
+            - influx
+        hostname: kapacitor
+        volumes: 
+            - kapacitor:/var/lib/kapacitor
+    grafana:
+        image: grafana/grafana:latest
+        ports:
+            - 3000:3000
+        links:
+            - influxdb
+            - kapacitor
+        networks:
+            - influx
+        hostname: grafana
+        volumes:
+            - grafana:/var/lib/grafana
+
+networks:
+    influx:
+
+volumes:
+    influxdb:
+    chronograf:
+    kapacitor:
+    grafana:
+    
