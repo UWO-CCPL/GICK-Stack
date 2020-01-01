@@ -1,8 +1,8 @@
-version: "2"
+version: "3.7"
 
 services:
     influxdb:
-        image: influxdb:1.7.9
+        image: influxdb:latest
         ports:
             - 8086:8086
         volumes:
@@ -12,10 +12,11 @@ services:
         hostname: influxdb
 
     chronograf:
-        image: chronograf:1.7.14
+        image: chronograf:latest
         environment:
             INFLUXDB_URL: http://influxdb:8086
             KAPACITOR_URL: http://kapacitor:9092
+            HOST: "::"
         ports: 
             - 8888:8888
         links:
@@ -28,7 +29,10 @@ services:
             - chronograf:/var/lib/chronograf
     
     kapacitor:
-        image: kapacitor:1.5.3
+        image: kapacitor:master
+        build:
+            context: ./kapacitor
+
         environment:
             KAPACITOR_HOSTNAME: kapacitor
             KAPACITOR_INFLUXDB_0_URLS_0: http://influxdb:8086
@@ -41,6 +45,10 @@ services:
         hostname: kapacitor
         volumes: 
             - kapacitor:/var/lib/kapacitor
+        configs:
+            - source: kapacitor.conf
+              target: /etc/kapacitor/kapacitor.conf
+              
     grafana:
         image: grafana/grafana:latest
         ports:
@@ -55,7 +63,7 @@ services:
             - grafana:/var/lib/grafana
 
     mqtt:
-        image: eclipse-mosquitto:1.6.8
+        image: eclipse-mosquitto:latest
         ports: 
             - 1883:1883
             - 9001:9001
@@ -63,7 +71,8 @@ services:
             - influx
         hostname: mqtt
         volumes:
-            - mqtt:/mosquitto
+            - mqtt_data:/mosquitto/data
+            - mqtt_log:/mosquitto/log
 
 
 networks:
@@ -74,5 +83,8 @@ volumes:
     chronograf:
     kapacitor:
     grafana:
-    mqtt:
-    
+    mqtt_data:
+    mqtt_log:
+configs:
+    kapacitor.conf:
+        file: ./kapacitor.conf
