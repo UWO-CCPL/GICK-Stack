@@ -61,6 +61,7 @@ services:
         hostname: grafana
         volumes:
             - grafana:/var/lib/grafana
+            - /var/lib/grafana/plugins:/var/lib/grafana/plugins
 
     mqtt:
         image: eclipse-mosquitto:latest
@@ -73,6 +74,7 @@ services:
         volumes:
             - mqtt_data:/mosquitto/data
             - mqtt_log:/mosquitto/log
+            - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
 
 
 networks:
